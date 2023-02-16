@@ -1,6 +1,5 @@
 package com.example.ilabankproject.views.adapter
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -8,7 +7,6 @@ import com.example.ilabankproject.databinding.RowRecyclerImagelabelBinding
 import java.util.ArrayList
 
 class LableRecyclerAdapter(
-    private val context: Context,
     private var dataList: MutableList<String>?
 ) : RecyclerView.Adapter<LableRecyclerAdapter.LabelViewHolder>() {
 
@@ -32,14 +30,9 @@ class LableRecyclerAdapter(
 
     fun filter(labelList: MutableList<String>?, query: String): MutableList<String> {
         var query = query.toLowerCase()
-        val filteredDataList: MutableList<String> = ArrayList()
-        if (labelList != null) {
-            for (data in labelList) {
-                val label = data.toLowerCase()
-                if (label.contains(query)) {
-                    filteredDataList.add(data)
-                }
-            }
+        var filteredDataList: MutableList<String> = ArrayList()
+        if (!labelList.isNullOrEmpty()) {
+            filteredDataList = labelList!!.filter { it.contains(query) } as MutableList<String>
         }
         this.dataList = filteredDataList
         notifyDataSetChanged()

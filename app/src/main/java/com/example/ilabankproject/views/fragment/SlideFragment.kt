@@ -23,12 +23,13 @@ import com.example.ilabankproject.views.adapter.ViewPagerAdapter
 class SlideFragment : Fragment() {
     private lateinit var mBinding: FragmentSliderBinding
     private lateinit var mViewModel: SlideViewModel
-    private lateinit var viewPagerAdapter: ViewPagerAdapter;
-    private var dotscount = 0
+    private lateinit var mViewPagerAdapter: ViewPagerAdapter;
+    private var mdotscount = 0
     private var dots: ArrayList<ImageView> = ArrayList();
     private var labelList: MutableList<ImageDataDto>? = null;
     private lateinit var labelAdapter: LableRecyclerAdapter;
     private var selectedLabelList: MutableList<String>? = null;
+    private var previousSelectedTab = 0
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -46,6 +47,7 @@ class SlideFragment : Fragment() {
     }
 
     fun viewInitialization() {
+        liveDataObserver()
         viewPageAdatperSetting(requireContext());
         recyclerViewSetting();
         searchData();
@@ -53,9 +55,9 @@ class SlideFragment : Fragment() {
     }
 
     fun viewPageAdatperSetting(context: Context) {
-        labelList = mViewModel.prepareImageList()
-        viewPagerAdapter = ViewPagerAdapter(context = context, labelList = labelList)
-        mBinding.viewpager.setAdapter(viewPagerAdapter)
+        labelList = mViewModel.prepareImageList()!!.value
+        mViewPagerAdapter = ViewPagerAdapter(labelList)
+        mBinding.viewpager.setAdapter(mViewPagerAdapter)
 
         mBinding.viewpager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageScrolled(
@@ -68,18 +70,13 @@ class SlideFragment : Fragment() {
 
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
-                for (i in 0 until dotscount) {
-                    dots.get(i).setImageDrawable(
-                        ContextCompat.getDrawable(
-                            requireContext(),
-                            R.drawable.nonactive_dots
-                        )
-                    )
-                }
-
+                dots.get(previousSelectedTab).setImageDrawable(
+                    ContextCompat.getDrawable(requireContext(), R.drawable.nonactive_dots)
+                )
                 dots.get(position).setImageDrawable(
                     ContextCompat.getDrawable(requireContext(), R.drawable.activedot)
                 )
+                previousSelectedTab = position
                 selectedLabelList = labelList?.get(position)?.labels;
                 setadapter();
             }
@@ -90,9 +87,15 @@ class SlideFragment : Fragment() {
         })
     }
 
+    fun liveDataObserver() {
+        mViewModel.imageModelList.observe(requireActivity()) {
+            mViewPagerAdapter.notifyDataSetChanged()
+        }
+    }
+
     fun createSliderDotsViews() {
-        dotscount = viewPagerAdapter.getItemCount();
-        for (i in 0 until dotscount) {
+        mdotscount = mViewPagerAdapter.getItemCount();
+        for (i in 0 until mdotscount) {
             dots.add(ImageView(requireContext()))
             dots.get(i).setImageDrawable(
                 ContextCompat.getDrawable(
@@ -126,7 +129,7 @@ class SlideFragment : Fragment() {
     fun setadapter() {
         mBinding.searchTxt.setQuery("", false);
         mBinding.searchTxt.clearFocus();
-        labelAdapter = LableRecyclerAdapter(requireContext(), selectedLabelList)
+        labelAdapter = LableRecyclerAdapter(selectedLabelList)
         mBinding.recylcerLabels.adapter = labelAdapter
     }
 

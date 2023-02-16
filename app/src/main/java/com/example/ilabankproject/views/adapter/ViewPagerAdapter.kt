@@ -1,16 +1,13 @@
 package com.example.ilabankproject.views.adapter
 
-import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.example.ilabankproject.databinding.ViewpagerSliderBinding
 import com.example.ilabankproject.model.ImageDataDto
 
 class ViewPagerAdapter(
-    private val context: Context,
-    private val labelList: MutableList<ImageDataDto>?
+    private val mlabelList: MutableList<ImageDataDto>?
 ) : RecyclerView.Adapter<ViewPagerAdapter.SlideDataHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): SlideDataHolder {
@@ -24,15 +21,13 @@ class ViewPagerAdapter(
     }
 
     override fun onBindViewHolder(holder: SlideDataHolder, position: Int) {
-        Glide.with(context)
-            .load(labelList?.get(position)?.url)
-            .into(holder.imageView)
+        holder.imageView.setImageResource(mlabelList?.get(position)?.url!!)
+
     }
 
     override fun getItemCount(): Int {
-        return labelList?.size!!
+        return mlabelList?.size!!
     }
-
 
     inner class SlideDataHolder(
         private var binding: ViewpagerSliderBinding,
